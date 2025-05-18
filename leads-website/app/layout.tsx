@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Leads Website",
   description: "Esse website é um projeto de captação de Leads",
+  keywords: ["leads", "website", "projeto", "captação", "empresa"],
 };
 
 export default function RootLayout({

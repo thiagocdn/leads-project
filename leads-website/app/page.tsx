@@ -9,7 +9,7 @@ export default function Home() {
         Clique no botão abaixo para acessar o formulário.
       </p>
       <Button asChild size="lg" className="text-xl font-bold bg-blue-800">
-        <Link href="/formulario">Acessar Formulário</Link>
+        <Link href="/form">Acessar Formulário</Link>
       </Button>
     </>
   );
