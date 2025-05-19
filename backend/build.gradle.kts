@@ -29,6 +29,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.testcontainers:postgresql")
+	testImplementation("org.testcontainers:localstack")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation("com.amazonaws:aws-java-sdk-core:1.12.730")
 	implementation("com.amazonaws:aws-java-sdk-sns:1.12.730")

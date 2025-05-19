@@ -10,5 +10,6 @@ import org.springframework.context.annotation.Import
 @EnableCaching
 @Import(
     PostgresTestConfiguration::class,
+    LocalStackTestConfiguration::class,
 )
 annotation class IntegrationTest
