@@ -47,24 +47,35 @@ class LeadsRest (
         )
     }
 
-    @GetMapping
+    @GetMapping("/email/{leadEmail}")
     fun findByEmail(
-        @RequestParam email: String
+        @PathVariable leadEmail: String
     ): RestResponse<List<LeadResponse>> {
-        val leads = leadsService.findByEmail(email).getOrThrow().map { LeadResponse.from(it) }
+        val leads = leadsService.findByEmail(leadEmail).getOrThrow().map { LeadResponse.from(it) }
         return RestResponse(
             message = "Leads retrieved successfully.",
             response = leads
         )
     }
 
-    @PostMapping("/email-contacted")
+    @PostMapping("/email-contacted/{leadEmail}")
     fun updateLeadsContactedByEmail(
-        @RequestParam email: String,
+        @PathVariable leadEmail: String
     ): RestResponse<Unit> {
-        leadsService.updateLeadsContactedByEmail(email).getOrThrow()
+        leadsService.updateLeadsContactedByEmail(leadEmail).getOrThrow()
         return RestResponse(
-            message = "All leads with e-mail $email were contacted.",
+            message = "All leads with e-mail $leadEmail were contacted.",
+            response = Unit
+        )
+    }
+
+    @PostMapping("/phone-contacted/{leadPhone}")
+    fun updateLeadsContactedByPhone(
+        @PathVariable leadPhone: String
+    ): RestResponse<Unit> {
+        leadsService.updateLeadsContactedByPhone(leadPhone).getOrThrow()
+        return RestResponse(
+            message = "All leads with phone $leadPhone were contacted.",
             response = Unit
         )
     }

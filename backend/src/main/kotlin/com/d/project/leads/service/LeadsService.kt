@@ -73,7 +73,17 @@ class LeadsService(
         leadRepository.save(lead.copy(contacted = true))
     }
 
-    fun updateLeadsContactedByEmail(email: String): Result<Unit> = findByEmail(email).map { leads ->
+    fun updateLeadsContactedByEmail(email: String): Result<Unit> = runCatching {
+        val leads = leadRepository.findByEmailAndContactedFalse(email)
+        if (leads.isEmpty()) throw NotFoundException("No leads found with email $email.")
+        leads.forEach { lead ->
+            leadRepository.save(lead.copy(contacted = true))
+        }
+    }
+
+    fun updateLeadsContactedByPhone(phone: String): Result<Unit> = runCatching {
+        val leads = leadRepository.findByPhoneAndContactedFalse(phone)
+        if (leads.isEmpty()) throw NotFoundException("No leads found with phone $phone.")
         leads.forEach { lead ->
             leadRepository.save(lead.copy(contacted = true))
         }

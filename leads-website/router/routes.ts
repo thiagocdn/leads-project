@@ -9,6 +9,10 @@ export const routes = {
   > => api.get(`/leads/not-contacted?`),
   setLeadContacted: (id: string): Promise<ApiResponse<string>> =>
     api.post(`/leads/${id}/contacted`),
+  setLeadsContactedByEmail: (email: string): Promise<ApiResponse<string>> =>
+    api.post(`/leads/email-contacted/${email}`),
+  setLeadsContactedByPhone: (phone: string): Promise<ApiResponse<string>> =>
+    api.post(`/leads/phone-contacted/${phone}`),
   createLead: (data: CreateLeadRequest): Promise<ApiResponse<string>> =>
     api.post("/leads", data),
 };

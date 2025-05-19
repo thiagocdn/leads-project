@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository
 @Repository
 interface LeadRepository: JpaRepository<Lead, String> {
     fun findByEmail(email: String): List<Lead>
+    fun findByEmailAndContactedFalse(email: String): List<Lead>
+    fun findByPhoneAndContactedFalse(phone: String): List<Lead>
     fun findByContactedFalse(pageable: Pageable): Page<Lead>
     fun findByEmailIgnoreCaseAndNameIgnoreCaseAndPhoneIgnoreCaseAndContactedFalse(
         email: String,

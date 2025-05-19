@@ -36,6 +36,24 @@ export default function LeadsDashboard() {
     }
   };
 
+  const markAsContactedByEmail = async (email: string) => {
+    try {
+      await routes.setLeadsContactedByEmail(email);
+      fetchLeads();
+    } catch (error) {
+      console.error("Failed to mark as contacted by email", error);
+    }
+  };
+
+  const markAsContactedByPhone = async (phone: string) => {
+    try {
+      await routes.setLeadsContactedByPhone(phone);
+      fetchLeads();
+    } catch (error) {
+      console.error("Failed to mark as contacted by phone", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="grid gap-4 p-4">
@@ -58,9 +76,29 @@ export default function LeadsDashboard() {
             <p className="text-sm text-muted-foreground">{lead.email}</p>
             <p className="text-sm text-muted-foreground">{lead.phone}</p>
           </CardContent>
-          <Button onClick={() => markAsContacted(lead.id)} variant="default">
-            Contacted
-          </Button>
+          <div className="flex flex-col items-center gap-1">
+            <Button
+              onClick={() => markAsContacted(lead.id)}
+              variant="default"
+              size="sm"
+            >
+              Contatado Lead
+            </Button>
+            <Button
+              onClick={() => markAsContactedByEmail(lead.email)}
+              variant="default"
+              size="sm"
+            >
+              Contatado por E-mail
+            </Button>
+            <Button
+              onClick={() => markAsContactedByPhone(lead.phone)}
+              variant="default"
+              size="sm"
+            >
+              Contatado por Telefone
+            </Button>
+          </div>
         </Card>
       ))}
       {leads.length === 0 && (
