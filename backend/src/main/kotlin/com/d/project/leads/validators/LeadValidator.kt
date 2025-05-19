@@ -8,15 +8,16 @@ import org.springframework.stereotype.Component
 
 @Component
 class LeadValidator {
-    fun validate(request: NewLeadRequest): Result<Unit> {
+    fun validate(request: NewLeadRequest): Result<NewLeadRequest> {
         val errors = mutableListOf<ExceptionError>()
         if (request.name.isBlank() || request.name.length < 3) {
             errors.add(ExceptionError("name", "Nome com pelo menos 3 caracteres é obrigatório."))
         }
 
+        val cleanedPhone = request.phone.replace(Regex("\\D"), "")
         if (request.phone.isBlank()) {
             errors.add(ExceptionError("phone", "Telefone é obrigatório."))
-        } else if (!request.phone.matches(Regex("^\\+?[0-9]{10,15}\$"))) {
+        } else if (!cleanedPhone.matches(Regex("^\\+?[0-9]{10,15}\$"))) {
             errors.add(ExceptionError("phone", "Telefone inválido."))
         }
 
@@ -42,7 +43,7 @@ class LeadValidator {
         return if (errors.isNotEmpty()) {
             Result.failure(ValidationException(message = "Por favor, verifique os erros.", errors = errors))
         } else {
-            Result.success(Unit)
+            Result.success(request.copy(phone = request.phone.replace(Regex("\\D"), "")))
         }
     }
 }

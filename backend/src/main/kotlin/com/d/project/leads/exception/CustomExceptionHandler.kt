@@ -1,7 +1,6 @@
-package com.d.project.leads.rest
+package com.d.project.leads.exception
 
-import com.d.project.leads.exception.NotFoundException
-import com.d.project.leads.exception.ValidationException
+import com.d.project.leads.rest.data.RestResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

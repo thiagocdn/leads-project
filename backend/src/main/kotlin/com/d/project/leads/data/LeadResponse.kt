@@ -5,6 +5,7 @@ data class LeadResponse(
     val name: String,
     val email: String,
     val phone: String,
+    val quantityRequested: Int,
     val createdAt: String,
     val updatedAt: String,
 ) {
@@ -15,6 +16,7 @@ data class LeadResponse(
                 name = lead.name,
                 email = lead.email,
                 phone = lead.phone,
+                quantityRequested = lead.quantityRequested,
                 createdAt = lead.createdAt.toString(),
                 updatedAt = lead.updatedAt.toString()
             )

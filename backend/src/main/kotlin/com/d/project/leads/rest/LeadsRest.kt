@@ -2,6 +2,7 @@ package com.d.project.leads.rest
 
 import com.d.project.leads.data.LeadResponse
 import com.d.project.leads.data.NewLeadRequest
+import com.d.project.leads.rest.data.RestResponse
 import com.d.project.leads.service.LeadsService
 import org.springframework.web.bind.annotation.*
 
@@ -21,14 +22,50 @@ class LeadsRest (
         )
     }
 
-    @GetMapping("/{leadId}")
-    fun getLeads(
-        @PathVariable leadId: String
-    ): RestResponse<LeadResponse> {
-        val lead = leadsService.getLead(leadId).getOrThrow()
+    @GetMapping("/not-contacted")
+    fun findNotContacted(
+        @RequestParam page: Int = 0,
+        @RequestParam size: Int = 20
+    ): RestResponse<List<LeadResponse>> {
+        val leads = leadsService.listLeadsNotContactedPaginated(page, size).getOrThrow().content.map {
+            LeadResponse.from(it)
+        }
         return RestResponse(
-            message = "Lead retrieved successfully.",
-            response = LeadResponse.from(lead)
+            message = "Leads retrieved successfully.",
+            response = leads
+        )
+    }
+
+    @PostMapping("/{id}/contacted")
+    fun updateLeadContacted(
+        @PathVariable id: String,
+    ): RestResponse<Unit> {
+        leadsService.updateLeadContacted(id).getOrThrow()
+        return RestResponse(
+            message = "Lead updated successfully.",
+            response = Unit
+        )
+    }
+
+    @GetMapping
+    fun findByEmail(
+        @RequestParam email: String
+    ): RestResponse<List<LeadResponse>> {
+        val leads = leadsService.findByEmail(email).getOrThrow().map { LeadResponse.from(it) }
+        return RestResponse(
+            message = "Leads retrieved successfully.",
+            response = leads
+        )
+    }
+
+    @PostMapping("/email-contacted")
+    fun updateLeadsContactedByEmail(
+        @RequestParam email: String,
+    ): RestResponse<Unit> {
+        leadsService.updateLeadsContactedByEmail(email).getOrThrow()
+        return RestResponse(
+            message = "All leads with e-mail $email were contacted.",
+            response = Unit
         )
     }
 }

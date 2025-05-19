@@ -6,8 +6,12 @@ import com.d.project.leads.data.LeadSnsMessage
 import com.d.project.leads.data.NewLeadRequest
 import com.d.project.leads.exception.NotFoundException
 import com.d.project.leads.repository.LeadRepository
+import com.d.project.leads.rest.data.PaginatedResponse
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 
 @Service
 class LeadsService(
@@ -16,19 +20,61 @@ class LeadsService(
     private val snsPublisher: SnsPublisher,
     private val objectMapper: ObjectMapper
 ) {
-    fun createLead(request: NewLeadRequest): Result<Lead> = leadValidator.validate(request).map {
-        val savedLead = leadRepository.save(request.toLead())
-        snsPublishHandler(savedLead)
-        return Result.success(savedLead)
+    fun createLead(request: NewLeadRequest): Result<Lead> = leadValidator.validate(request).map { cleanedRequest ->
+        val lead = leadRepository.findByEmailIgnoreCaseAndNameIgnoreCaseAndPhoneIgnoreCaseAndContactedFalse(
+            cleanedRequest.email,
+            cleanedRequest.name,
+            cleanedRequest.phone
+        )?.let {
+            leadRepository.save(it.copy(
+                quantityRequested = it.quantityRequested.plus(1),
+                updatedAt = LocalDateTime.now(),
+            ))
+        } ?: leadRepository.save(cleanedRequest.toLead())
+        snsPublishHandler(lead)
+
+        return Result.success(lead)
     }
 
     private fun snsPublishHandler(lead: Lead) {
-        val quantityRequest = leadRepository.countByEmail(lead.email)
-        val leadSnsMessage = LeadSnsMessage.from(lead, quantityRequest.toInt())
+        val leadSnsMessage = LeadSnsMessage.from(lead)
         snsPublisher.publishMessage(objectMapper.writeValueAsString(leadSnsMessage))
     }
 
     fun getLead(id: String): Result<Lead> = runCatching {
         leadRepository.findById(id).orElseThrow { NotFoundException("Lead not found.") }
+    }
+
+    fun listLeadsNotContactedPaginated(page: Int, size: Int): Result<PaginatedResponse<Lead>> = runCatching {
+        val sort = Sort.by(
+            Sort.Order.desc("quantityRequested"),
+            Sort.Order.desc("createdAt")
+        )
+        val pageable = PageRequest.of(page, size, sort)
+        val leadsPage = leadRepository.findByContactedFalse(pageable)
+
+        PaginatedResponse(
+            content = leadsPage.content,
+            page = leadsPage.number,
+            size = leadsPage.size,
+            totalPages = leadsPage.totalPages,
+            totalElements = leadsPage.totalElements,
+            hasNext = leadsPage.hasNext(),
+            hasPrevious = leadsPage.hasPrevious()
+        )
+    }
+
+    fun findByEmail(email: String): Result<List<Lead>> = runCatching {
+        leadRepository.findByEmail(email)
+    }
+
+    fun updateLeadContacted(leadId: String): Result<Lead> = getLead(leadId).map { lead ->
+        leadRepository.save(lead.copy(contacted = true))
+    }
+
+    fun updateLeadsContactedByEmail(email: String): Result<Unit> = findByEmail(email).map { leads ->
+        leads.forEach { lead ->
+            leadRepository.save(lead.copy(contacted = true))
+        }
     }
 }

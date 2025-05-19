@@ -1,4 +1,4 @@
-package com.d.project.leads.rest
+package com.d.project.leads.rest.data
 
 import com.d.project.leads.exception.ExceptionError
 
