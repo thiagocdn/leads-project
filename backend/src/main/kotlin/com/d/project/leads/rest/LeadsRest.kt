@@ -2,6 +2,7 @@ package com.d.project.leads.rest
 
 import com.d.project.leads.data.LeadResponse
 import com.d.project.leads.data.NewLeadRequest
+import com.d.project.leads.rest.data.PaginatedResponse
 import com.d.project.leads.rest.data.RestResponse
 import com.d.project.leads.service.LeadsService
 import org.springframework.web.bind.annotation.*
@@ -26,10 +27,9 @@ class LeadsRest (
     fun findNotContacted(
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 20
-    ): RestResponse<List<LeadResponse>> {
-        val leads = leadsService.listLeadsNotContactedPaginated(page, size).getOrThrow().content.map {
-            LeadResponse.from(it)
-        }
+    ): RestResponse<PaginatedResponse<LeadResponse>> {
+        val leads = leadsService.listLeadsNotContactedPaginated(page, size).getOrThrow()
+
         return RestResponse(
             message = "Leads retrieved successfully.",
             response = leads

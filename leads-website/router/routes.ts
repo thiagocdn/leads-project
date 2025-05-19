@@ -1,11 +1,14 @@
-import { AxiosResponse } from "axios";
 import { api } from "./api";
-import { CreateLeadRequest } from "./data/leads";
-import { ApiResponse } from "./data/api-response";
+import { CreateLeadRequest, Lead } from "./data/leads";
+import { ApiPaginatedResponse, ApiResponse } from "./data/api-response";
+import { AxiosResponse } from "axios";
 
 export const routes = {
-  getLeads: () => api.get("/leads"),
-  getLeadById: (id: string) => api.get<AxiosResponse<string>>(`/leads/${id}`),
+  getUncontactedLeads: (): Promise<
+    AxiosResponse<ApiPaginatedResponse<Lead[]>>
+  > => api.get(`/leads/not-contacted?`),
+  setLeadContacted: (id: string): Promise<ApiResponse<string>> =>
+    api.post(`/leads/${id}/contacted`),
   createLead: (data: CreateLeadRequest): Promise<ApiResponse<string>> =>
     api.post("/leads", data),
 };

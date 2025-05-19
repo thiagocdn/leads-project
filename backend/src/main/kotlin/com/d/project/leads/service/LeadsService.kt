@@ -2,6 +2,7 @@ package com.d.project.leads.service
 
 import com.d.project.leads.validators.LeadValidator
 import com.d.project.leads.data.Lead
+import com.d.project.leads.data.LeadResponse
 import com.d.project.leads.data.LeadSnsMessage
 import com.d.project.leads.data.NewLeadRequest
 import com.d.project.leads.exception.NotFoundException
@@ -45,16 +46,16 @@ class LeadsService(
         leadRepository.findById(id).orElseThrow { NotFoundException("Lead not found.") }
     }
 
-    fun listLeadsNotContactedPaginated(page: Int, size: Int): Result<PaginatedResponse<Lead>> = runCatching {
+    fun listLeadsNotContactedPaginated(page: Int, size: Int): Result<PaginatedResponse<LeadResponse>> = runCatching {
         val sort = Sort.by(
             Sort.Order.desc("quantityRequested"),
-            Sort.Order.desc("createdAt")
+            Sort.Order.asc("createdAt")
         )
         val pageable = PageRequest.of(page, size, sort)
         val leadsPage = leadRepository.findByContactedFalse(pageable)
 
         PaginatedResponse(
-            content = leadsPage.content,
+            content = leadsPage.content.map { LeadResponse.from(it) },
             page = leadsPage.number,
             size = leadsPage.size,
             totalPages = leadsPage.totalPages,
