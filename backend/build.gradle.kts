@@ -30,6 +30,8 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.testcontainers:postgresql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	implementation("com.amazonaws:aws-java-sdk-core:1.12.730")
+	implementation("com.amazonaws:aws-java-sdk-sns:1.12.730")
 }
 
 kotlin {

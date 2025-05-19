@@ -12,6 +12,7 @@ services:
       NEXT_PUBLIC_API_URL: http://localhost:8080
     depends_on:
       - leads_backend
+
   leads_backend:
     container_name: leads_backend
     build:
@@ -21,14 +22,24 @@ services:
         DB_URL: ${DB_URL}
         PG_USER: ${PG_USER}
         PG_PASSWORD: ${PG_PASSWORD}
+        SNS_ENDPOINT: ${AWS_ENDPOINT_URL}
+        SNS_REGION: ${DEFAULT_REGION}
+        SNS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+        SNS_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
     ports:
       - "8080:8080"
     environment:
       DB_URL: jdbc:postgresql://postgres_db:5432/leads
       PG_USER: postgres
       PG_PASSWORD: postgres
+      SNS_REGION: us-east-1
+      SNS_ACCESS_KEY: access_key
+      SNS_SECRET_KEY: secret_key
+      SNS_ENDPOINT: http://localstack:4566
     depends_on:
       - postgres_db
+      - localstack
+
   postgres_db:
     container_name: postgres_db
     image: postgres:latest
@@ -41,5 +52,20 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sns
+      - DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=access_key
+      - AWS_SECRET_ACCESS_KEY=secret_key
+      - DEBUG=1
+    volumes:
+      - localstack:/var/lib/localstack
+
 volumes:
   pgdata: {}
+  localstack: {}
