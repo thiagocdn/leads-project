@@ -4,9 +4,9 @@ import com.d.project.leads.data.Lead
 import org.springframework.data.jpa.domain.Specification
 
 data class SearchLeadsFilters (
-    val email: String?,
-    val phone: String?,
-    val contacted: Boolean?,
+    val email: String? = null,
+    val phone: String? = null,
+    val contacted: Boolean? = null,
 )
 
 fun SearchLeadsFilters.toSpecification(): Specification<Lead> {

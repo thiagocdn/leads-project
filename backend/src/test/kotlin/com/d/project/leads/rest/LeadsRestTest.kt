@@ -133,6 +133,25 @@ class LeadsRestTest {
     }
 
     @Test
+    fun `when find leads by phone, returns all leads with the given email`() {
+        val phone = "+511234567890"
+        leadsTestHelper.create(phone = phone)
+        leadsTestHelper.create(phone = phone)
+        leadsTestHelper.create()
+
+        mockMvc.get("/leads") {
+            param("phone", phone)
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.message") { value("Leads retrieved successfully.") }
+            jsonPath("$.response.totalPages") { value(1) }
+            jsonPath("$.response.totalElements") { value(2) }
+            jsonPath("$.response.content[0].phone") { value(phone) }
+            jsonPath("$.response.content[1].phone") { value(phone) }
+        }
+    }
+
+    @Test
     fun `when try to update lead contact with invalid id, returns validation error`() {
         mockMvc.post("/leads/invalid/contacted").andExpect {
             status { isBadRequest() }

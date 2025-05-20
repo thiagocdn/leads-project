@@ -41,6 +41,11 @@ class LeadsService(
         return Result.success(lead)
     }
 
+    private fun snsPublishHandler(lead: Lead) {
+        val leadSnsMessage = LeadSnsMessage.from(lead)
+        snsPublisher.publishMessage(objectMapper.writeValueAsString(leadSnsMessage))
+    }
+
     fun searchLeadsPaginated(
         page: Int,
         size: Int,
@@ -62,11 +67,6 @@ class LeadsService(
         )
     }
 
-    private fun snsPublishHandler(lead: Lead) {
-        val leadSnsMessage = LeadSnsMessage.from(lead)
-        snsPublisher.publishMessage(objectMapper.writeValueAsString(leadSnsMessage))
-    }
-
     fun getLead(id: String): Result<Lead> = runCatching {
         val idParsed = try {
             UUID.fromString(id)
@@ -74,29 +74,6 @@ class LeadsService(
             throw ValidationException("Id '$id' not valid.")
         }
         leadRepository.findById(idParsed) ?: throw NotFoundException("Lead with id $id not found.")
-    }
-
-    fun listLeadsNotContactedPaginated(page: Int, size: Int): Result<PaginatedResponse<LeadResponse>> = runCatching {
-        val sort = Sort.by(
-            Sort.Order.desc("quantityRequested"),
-            Sort.Order.asc("createdAt")
-        )
-        val pageable = PageRequest.of(page, size, sort)
-        val leadsPage = leadRepository.findByContactedFalse(pageable)
-
-        PaginatedResponse(
-            content = leadsPage.content.map { LeadResponse.from(it) },
-            page = leadsPage.number,
-            size = leadsPage.size,
-            totalPages = leadsPage.totalPages,
-            totalElements = leadsPage.totalElements,
-            hasNext = leadsPage.hasNext(),
-            hasPrevious = leadsPage.hasPrevious()
-        )
-    }
-
-    fun findByEmail(email: String): Result<List<Lead>> = runCatching {
-        leadRepository.findByEmail(email)
     }
 
     fun updateLeadContacted(leadId: String): Result<Lead> = getLead(leadId).map { lead ->
