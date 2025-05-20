@@ -9,6 +9,8 @@ import com.d.project.leads.exception.NotFoundException
 import com.d.project.leads.exception.ValidationException
 import com.d.project.leads.repository.LeadRepository
 import com.d.project.leads.rest.data.PaginatedResponse
+import com.d.project.leads.rest.data.SearchLeadsFilters
+import com.d.project.leads.rest.data.toSpecification
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -37,6 +39,27 @@ class LeadsService(
         snsPublishHandler(lead)
 
         return Result.success(lead)
+    }
+
+    fun searchLeadsPaginated(
+        page: Int,
+        size: Int,
+        filters: SearchLeadsFilters
+    ): Result<PaginatedResponse<LeadResponse>> = runCatching {
+        val sort = Sort.by(Sort.Order.asc("createdAt"))
+        val pageable = PageRequest.of(page, size, sort)
+
+        val leadsPage = leadRepository.findAll(filters.toSpecification(), pageable)
+
+        PaginatedResponse(
+            content = leadsPage.content.map { LeadResponse.from(it) },
+            page = leadsPage.number,
+            size = leadsPage.size,
+            totalPages = leadsPage.totalPages,
+            totalElements = leadsPage.totalElements,
+            hasNext = leadsPage.hasNext(),
+            hasPrevious = leadsPage.hasPrevious()
+        )
     }
 
     private fun snsPublishHandler(lead: Lead) {

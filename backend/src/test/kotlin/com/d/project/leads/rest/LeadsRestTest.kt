@@ -71,15 +71,54 @@ class LeadsRestTest {
         val leadNotContacted = leadsTestHelper.create()
         leadsTestHelper.create(contacted = true)
 
-        mockMvc.get("/leads/not-contacted") {
+        mockMvc.get("/leads") {
             param("page", "0")
             param("size", "10")
+            param("contacted", "false")
         }.andExpect {
             status { isOk() }
             jsonPath("$.message") { value("Leads retrieved successfully.") }
             jsonPath("$.response.totalPages") { value(1) }
             jsonPath("$.response.totalElements") { value(1) }
             jsonPath("$.response.content[0].id") { value(leadNotContacted.id.toString()) }
+        }
+    }
+
+    @Test
+    fun `when find leads by e-mail, returns all leads with the given email`() {
+        val email = "${UUID.randomUUID()}@doe.com"
+        leadsTestHelper.create(email = email)
+        leadsTestHelper.create(email = email)
+        leadsTestHelper.create(email = "${UUID.randomUUID()}@doe.com")
+
+        mockMvc.get("/leads") {
+            param("email", email)
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.message") { value("Leads retrieved successfully.") }
+            jsonPath("$.response.totalPages") { value(1) }
+            jsonPath("$.response.totalElements") { value(2) }
+            jsonPath("$.response.content[0].email") { value(email) }
+            jsonPath("$.response.content[1].email") { value(email) }
+        }
+    }
+
+    @Test
+    fun `when find leads by e-mail and not contacted, returns all leads with the given email and not contacted`() {
+        val email = "${UUID.randomUUID()}@doe.com"
+        leadsTestHelper.create(email = email, contacted = true)
+        leadsTestHelper.create(email = email)
+        leadsTestHelper.create(email = "${UUID.randomUUID()}@doe.com")
+
+        mockMvc.get("/leads") {
+            param("email", email)
+            param("contacted", "false")
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.message") { value("Leads retrieved successfully.") }
+            jsonPath("$.response.totalPages") { value(1) }
+            jsonPath("$.response.totalElements") { value(1) }
+            jsonPath("$.response.content[0].email") { value(email) }
         }
     }
 
@@ -110,21 +149,6 @@ class LeadsRestTest {
         }.andExpect {
             status { isNotFound() }
             jsonPath("$.message") { value("Lead with id $nonExistentId not found.") }
-        }
-    }
-
-    @Test
-    fun `when find leads by e-mail, returns all leads with the given email`() {
-        val email = "${UUID.randomUUID()}@doe.com"
-        leadsTestHelper.create(email = email)
-        leadsTestHelper.create(email = email)
-
-        mockMvc.get("/leads/email/$email").andExpect {
-            status { isOk() }
-            jsonPath("$.message") { value("Leads retrieved successfully.") }
-            jsonPath("$.response", hasSize<Any>(2))
-            jsonPath("$.response[0].email") { value(email) }
-            jsonPath("$.response[1].email") { value(email) }
         }
     }
 

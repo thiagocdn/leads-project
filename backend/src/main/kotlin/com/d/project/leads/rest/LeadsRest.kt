@@ -4,6 +4,7 @@ import com.d.project.leads.data.LeadResponse
 import com.d.project.leads.data.NewLeadRequest
 import com.d.project.leads.rest.data.PaginatedResponse
 import com.d.project.leads.rest.data.RestResponse
+import com.d.project.leads.rest.data.SearchLeadsFilters
 import com.d.project.leads.service.LeadsService
 import org.springframework.web.bind.annotation.*
 
@@ -23,12 +24,17 @@ class LeadsRest (
         )
     }
 
-    @GetMapping("/not-contacted")
-    fun findNotContacted(
+    @GetMapping
+    fun searchLeads(
         @RequestParam page: Int = 0,
-        @RequestParam size: Int = 20
+        @RequestParam size: Int = 10,
+        @ModelAttribute filters: SearchLeadsFilters
     ): RestResponse<PaginatedResponse<LeadResponse>> {
-        val leads = leadsService.listLeadsNotContactedPaginated(page, size).getOrThrow()
+        val leads = leadsService.searchLeadsPaginated(
+            page = page,
+            size = size,
+            filters = filters
+        ).getOrThrow()
 
         return RestResponse(
             message = "Leads retrieved successfully.",
@@ -44,17 +50,6 @@ class LeadsRest (
         return RestResponse(
             message = "Lead updated successfully.",
             response = Unit
-        )
-    }
-
-    @GetMapping("/email/{leadEmail}")
-    fun findByEmail(
-        @PathVariable leadEmail: String
-    ): RestResponse<List<LeadResponse>> {
-        val leads = leadsService.findByEmail(leadEmail).getOrThrow().map { LeadResponse.from(it) }
-        return RestResponse(
-            message = "Leads retrieved successfully.",
-            response = leads
         )
     }
 

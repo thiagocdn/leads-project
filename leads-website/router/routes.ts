@@ -4,9 +4,17 @@ import { ApiPaginatedResponse, ApiResponse } from "./data/api-response";
 import { AxiosResponse } from "axios";
 
 export const routes = {
-  getUncontactedLeads: (): Promise<
-    AxiosResponse<ApiPaginatedResponse<Lead[]>>
-  > => api.get(`/leads/not-contacted?`),
+  searchLeads: (
+    email: string = "",
+    phone: string = "",
+    contacted: boolean = false,
+    page: number = 0
+  ): Promise<AxiosResponse<ApiPaginatedResponse<Lead[]>>> =>
+    api.get(
+      `/leads?size=5&page=${page}&contacted=${contacted}${
+        email != "" ? `&email=${email}` : ""
+      }${phone != "" ? `&phone=${phone}` : ""}`
+    ),
   setLeadContacted: (id: string): Promise<ApiResponse<string>> =>
     api.post(`/leads/${id}/contacted`),
   setLeadsContactedByEmail: (email: string): Promise<ApiResponse<string>> =>

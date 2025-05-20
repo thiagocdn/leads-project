@@ -2,19 +2,39 @@
 
 This is a project to run an application to get new Leads from a form.
 
-# Run the Application
+## Ports
+
+### Frontend
+
+The website/frontend is set to run in port 3000.
+http://localhost:3000
+
+### Backend
+
+The server/backend is set to run in port 8080.
+http://localhost:8080
+
+# Running the Application
 
 The project is set up to run smoothly in Docker with docker compose, just run:
 
 `docker compose up -d`
 -d to deattach the terminal; this is optional.
 
+- With this command, you will run both frontend and backend (with required stacks - Localstack + Postgres).
+
+---
+
 You can run the backend outside a Docker, but must have access to a PostgresDB and SNS Service providing the environment variables:
 
 `cd backend`
 `./gradlew bootRun --args="--DB_URL=jdbc:postgresql://localhost:5432/leads --PG_USER=postgres --PG_PASSWORD=postgres --SNS_ACCESS_KEY=access_key --SNS_SECRET_KEY=secret_key --SNS_REGION=us-east-1 --SNS_ENDPOINT=http://localhost:4566"`
 
-To run the frontend application in dev mode just run:
+These variables are ones used in docker compose, please replace as needed.
+
+---
+
+You can also run the frontend application outside a Docker in dev mode just running:
 `cd leads-website`
 `npm i`
 `npm run dev`
@@ -37,6 +57,8 @@ A simple route to inform the user that the form was sent
 
 A simple dashbord to update the leads that were contacted.
 
+---
+
 # Backend Documentation
 
 ## Register a new Lead:
@@ -53,30 +75,35 @@ A simple dashbord to update the leads that were contacted.
 }
 ```
 
-## Find Leads by Email:
+## Search Leads:
 
-This endpoint will return a list of Leads.
-Even though a lead can only have an e-mail registered, it can change its phone or name - if the user uses the same name and phone it'll save as the same lead with multiple requests but if the user changes any data besides referral data, the system will save as a new lead.
+This endpoint will return a paginated list of Leads.
+A Lead will increase its requestedQuantity only if it was not already contacted and all personal data (Name, Email and Phone) are the same; otherwise it'll create another entry.
+This is the reason, an email can have more than one lead registered (with a different name or phone - or if it was already contacted and the person registered another contact request)
 
-`GET /email/{leadEmail}`
+`GET /leads?page=0&size=10&contacted=false&...`
+
+Optional Query params:
+
+```
+page - page from pagination
+size - number of results per page
+email - search by an email
+phone - search by a phone
+contacted - search for leads contacted and not contacted
+```
 
 ## Set Leads contacted by e-mail:
 
 To have an easier way to set an e-mail contacted, this endpoint will set ALL Leads with the given e-mail contacted even though they have other data registered.
 
-`POST /email-contacted/{leadEmail}`
+`POST /leads/email-contacted/{leadEmail}`
 
-## Set Leads Contacted by phone:
+## Set Leads contacted by phone:
 
 Just the same as above, but for phone
 
 `POST /phone-contacted/{leadPhone}`
-
-## List not Contacted Leads:
-
-This is a paginated endpoint to list not contacted leads:
-
-`GET /leads/not-contacted?page=0&size=10`
 
 ## Set a Lead contacted:
 
