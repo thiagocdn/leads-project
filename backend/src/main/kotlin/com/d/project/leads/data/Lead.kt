@@ -2,13 +2,14 @@ package com.d.project.leads.data
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity
 @Table(name = "leads")
 data class Lead (
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    val id: String? = null,
+    @GeneratedValue
+    val id: UUID? = null,
     val name: String,
     val phone: String,
     val email: String,

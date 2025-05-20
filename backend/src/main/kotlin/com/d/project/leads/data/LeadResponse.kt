@@ -12,7 +12,7 @@ data class LeadResponse(
     companion object {
         fun from(lead: Lead): LeadResponse {
             return LeadResponse(
-                id = lead.id ?: "",
+                id = lead.id.toString(),
                 name = lead.name,
                 email = lead.email,
                 phone = lead.phone,

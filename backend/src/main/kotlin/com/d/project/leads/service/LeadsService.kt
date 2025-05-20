@@ -6,6 +6,7 @@ import com.d.project.leads.data.LeadResponse
 import com.d.project.leads.data.LeadSnsMessage
 import com.d.project.leads.data.NewLeadRequest
 import com.d.project.leads.exception.NotFoundException
+import com.d.project.leads.exception.ValidationException
 import com.d.project.leads.repository.LeadRepository
 import com.d.project.leads.rest.data.PaginatedResponse
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class LeadsService(
@@ -43,7 +45,12 @@ class LeadsService(
     }
 
     fun getLead(id: String): Result<Lead> = runCatching {
-        leadRepository.findById(id).orElseThrow { NotFoundException("Lead not found.") }
+        val idParsed = try {
+            UUID.fromString(id)
+        } catch (e: IllegalArgumentException) {
+            throw ValidationException("Id '$id' not valid.")
+        }
+        leadRepository.findById(idParsed) ?: throw NotFoundException("Lead with id $id not found.")
     }
 
     fun listLeadsNotContactedPaginated(page: Int, size: Int): Result<PaginatedResponse<LeadResponse>> = runCatching {
