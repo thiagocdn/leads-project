@@ -25,6 +25,7 @@ import { routes } from "@/router/routes";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { ApiResponse } from "@/router/data/api-response";
+import { ReferralSource } from "@/app/form/data";
 
 const formSchema = z
   .object({
@@ -52,7 +53,16 @@ const formSchema = z
     }
   );
 
-export default function LeadsForm() {
+type LeadsFormProps = {
+  defaultValues?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    referralSource?: ReferralSource;
+  };
+};
+
+export default function LeadsForm({ defaultValues }: LeadsFormProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -63,6 +73,7 @@ export default function LeadsForm() {
       phone: "",
       referralSource: undefined,
       referralOthers: "",
+      ...defaultValues,
     },
   });
   const referralSource = form.watch("referralSource");
@@ -111,7 +122,11 @@ export default function LeadsForm() {
             <FormItem>
               <FormLabel>Nome</FormLabel>
               <FormControl>
-                <Input placeholder="Nome completo" {...field} />
+                <Input
+                  data-testid="full-name-input"
+                  placeholder="Nome completo"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -124,7 +139,11 @@ export default function LeadsForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="email" {...field} />
+                <Input
+                  data-testid="email-input"
+                  placeholder="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -137,7 +156,11 @@ export default function LeadsForm() {
             <FormItem>
               <FormLabel>Telefone</FormLabel>
               <FormControl>
-                <Input placeholder="12 3456-7890" {...field} />
+                <Input
+                  data-testid="phone-input"
+                  placeholder="12 3456-7890"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -152,7 +175,10 @@ export default function LeadsForm() {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione uma opção" />
+                    <SelectValue
+                      data-testid="referral-choice"
+                      placeholder="Selecione uma opção"
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -170,8 +196,11 @@ export default function LeadsForm() {
           control={form.control}
           name="referralOthers"
           render={({ field }) => (
-            <FormItem className={referralSource !== "OTHERS" ? "hidden" : ""}>
-              <FormLabel>Por favor, nos conte como nos conheceu:</FormLabel>
+            <FormItem
+              data-testid="referral-others-input-item"
+              className={referralSource !== "OTHERS" ? "hidden" : ""}
+            >
+              <FormLabel>Como nos conheceu?</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -179,7 +208,7 @@ export default function LeadsForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={loading}>
+        <Button data-testid="send-form-button" type="submit" disabled={loading}>
           Enviar
         </Button>
       </form>
