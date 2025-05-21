@@ -73,16 +73,6 @@ export default function LeadsDashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="grid gap-4 p-4">
-        {[...Array(5)].map((_, i) => (
-          <Skeleton key={i} className="h-24 w-80 rounded-xl" />
-        ))}
-      </div>
-    );
-  }
-
   const handlePageChange = (newPage: number) => {
     if (newPage < 0 || newPage >= totalPages) return;
     setPage(newPage);
@@ -91,28 +81,35 @@ export default function LeadsDashboard() {
   return (
     <div className="h-screen flex flex-col items-center w-full">
       <div className="flex justify-center p-6 shadow-sm w-full sticky top-0 bg-white z-10">
-        <div className="flex gap-4 max-w-180">
-          <Input
-            type="text"
-            placeholder="Pesquisar por email"
-            value={emailSearch}
-            onChange={(e) => setEmailSearch(e.target.value)}
-            className="input"
-          />
-          <Input
-            type="text"
-            placeholder="Pesquisar por telefone"
-            value={phoneSearch}
-            onChange={(e) => setPhoneSearch(e.target.value)}
-            className="input"
-          />
-          <Button onClick={fetchLeads}>Search</Button>
-          <Button
-            onClick={() => setContacted(!contacted)}
-            variant={contacted ? "outline" : "destructive"}
-          >
-            {contacted ? "Mostrar Não Contatados" : "Mostrar Contatados"}
-          </Button>
+        <div className="flex flex-col md:flex-row gap-4 max-w-180">
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-3/4">
+            <Input
+              type="text"
+              placeholder="Pesquisar por email"
+              value={emailSearch}
+              onChange={(e) => setEmailSearch(e.target.value)}
+              className="input"
+            />
+            <Input
+              type="text"
+              placeholder="Pesquisar por telefone"
+              value={phoneSearch}
+              onChange={(e) => setPhoneSearch(e.target.value)}
+              className="input"
+            />
+            <Button className=" w-fit" onClick={fetchLeads}>
+              Pesquisar
+            </Button>
+          </div>
+          <div className="w-full md:w-1/4 flex justify-end">
+            <Button
+              className="text-xs self-end w-[175px]"
+              onClick={() => setContacted(!contacted)}
+              variant={contacted ? "outline" : "destructive"}
+            >
+              {contacted ? "Mostrar Não Contatados" : "Mostrar Contatados"}
+            </Button>
+          </div>
         </div>
       </div>
       <div className="grid gap-4 p-4 max-w-140">
@@ -151,10 +148,20 @@ export default function LeadsDashboard() {
             </div>
           </Card>
         ))}
-        {leads.length === 0 && (
-          <p className="text-center text-muted-foreground">
-            All leads contacted
-          </p>
+        {loading ? (
+          <div className="grid gap-4 p-4">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-24 w-80 rounded-xl" />
+            ))}
+          </div>
+        ) : (
+          leads.length === 0 && (
+            <p className="text-center text-muted-foreground p-8">
+              {contacted
+                ? "Não há leads contatadas."
+                : "Nenhuma lead para contatar."}
+            </p>
+          )
         )}
         <Pagination className="my-4">
           <PaginationContent>

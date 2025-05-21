@@ -19,7 +19,7 @@ http://localhost:8080
 The project is set up to run smoothly in Docker with docker compose, just run:
 
 `docker compose up -d`
--d to deattach the terminal; this is optional.
+-d to deattach the terminal; this is optional - you can remove it and see the docker logs blocking the terminal window.
 
 - With this command, you will run both frontend and backend (with required stacks - Localstack + Postgres).
 

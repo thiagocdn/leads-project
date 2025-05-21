@@ -49,8 +49,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: leads
-    volumes:
-      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -68,14 +66,8 @@ services:
       - AWS_ACCESS_KEY_ID=access_key
       - AWS_SECRET_ACCESS_KEY=secret_key
       - DEBUG=1
-    volumes:
-      - localstack:/var/lib/localstack
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-volumes:
-  pgdata: {}
-  localstack: {}
